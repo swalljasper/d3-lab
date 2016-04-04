@@ -2,7 +2,7 @@ window.onload = setMap();
 
 function setMap(){
 	var width = 960,
-		height = 460;
+		height = 560;
 
 	var map = d3.select("body")
 		.append("svg")
@@ -11,9 +11,9 @@ function setMap(){
 		.attr("height", height);
 
 	var projection = d3.geo.azimuthalEquidistant()
-		.center([-93.26208, 44.9686414])
-		.rotate([0,0,0])
-		.scale(125000)
+		.center([0, 44.9686414])
+		.rotate([93.27,0,0])
+		.scale(200000)
 		.translate([width / 2, height / 2]);
 
 	var path = d3.geo.path()
@@ -47,9 +47,6 @@ function setMap(){
 		var hydro = topojson.feature(water, water.objects.Water),
             censusTracts = topojson.feature(tracts, tracts.objects.censusTracts).features;
 
-            console.log(hydro)
-            console.log(censusTracts)
-
         var mplsCensusTracts = map.selectAll(".regions")
         	.data(censusTracts)
         	.enter()
@@ -60,13 +57,98 @@ function setMap(){
         	.attr("d", path);
 
         var lakesRivers = map.append("path")
-        	.datum(censusTracts)
+        	.datum(hydro)
         	.attr("class", "lakesRivers")
         	.attr("d", path);
+
+        var attrArray = ["frn_brn", "pvrty", "rent", "unemp", "unins"];
+
+        for (var i=0; i<csvData.length; i++){
+        	var csvCT = csvData[i];
+        	var csvKey = csvCT.ID;
+
+        	for (var a=0; a<censusTracts.length; a++){
+
+        		var geojsonProps = censusTracts[a].properties;
+        		var geojsonKey = geojsonProps.GEOID;
+
+        		if (geojsonKey == csvKey){
+        			attrArray.forEach(function(attr){
+        				var val = parseFloat(csvCT[attr]);
+        				geojsonProps[attr] = val;
+        			});
+        		};
+        	};
+        };
+
+        var colorScale = makeColorScale(csvData);
+
+        setEnumerationUnits(censusTracts, map, path, colorScale);
+
+        
+
+        console.log(csvData)
+        console.log(censusTracts)
 		
 	}
 
-
-
-
 }
+
+function makeColorScale(data){
+        	var colorClasses = [
+        		"#D4B9DA",
+        		"#C994C7",
+        		"#DF65B0",
+        		"#DD1C77",
+        		"#980043"
+    		];
+
+    		var colorScale = d3.scale.quantile()
+    			.range(colorClasses);
+
+    		
+
+    		var domainArray = [];
+    		for (var i=0; i<data.length; i++){
+    			console.log(data[i]);
+    			var val = parseFloat(data[i][expressed]);
+    			domainArray.push(val);
+    		}
+
+    		var clusters = ss.ckmeans(domainArray, 5);
+
+    		domainArray = clusters.map(function(d){
+    			return d3.min(d);
+    		});
+
+    		domainArray.shift();
+
+    		colorScale.domain(domainArray);
+
+    		return colorScale;
+
+
+};
+
+
+
+function setEnumerationUnits(censusTracts, map, path, colorScale){
+
+	var cenTract = map.selectAll(".regions")
+		.data(censusTracts)
+		.enter()
+		.append("path")
+		.attr("class", function(d){
+			return "censusTracts " + d.properties.ID;
+		})
+		.attr("d", path)
+		.style("fill", function(d){
+			return colorScale(d.properties[expressed]);
+		});
+};
+
+
+
+
+
+
