@@ -1,5 +1,4 @@
 .map {
-    border: medium solid #999;
     margin: 10px 0 0 20px;
 }
 
@@ -57,4 +56,21 @@
 	stroke: #cccccc;
 	stroke-width: 0.3px;
 	stroke-linecap: round;
+}
+
+.dropdown {
+	position: absolute;
+	top: 30px;
+	left: 40px;
+	z-index: 10;
+	font-family: Futura;
+	font-size: 10px;
+	font-weight: bold;
+	padding: 2px;
+	border: 1px solid #999;
+	box-shadow: 2px 2px 4px #999;
+}
+
+option {
+	font-weight: normal;
 }

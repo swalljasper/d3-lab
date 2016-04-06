@@ -3,6 +3,19 @@
 	var attrArray = ["frn_brn", "pvrty", "rent", "unemp", "unins"];
 	var expressed = attrArray[0];
 
+	var chartWidth = window.innerWidth * 0.4,
+		chartHeight = 560,
+		leftPadding = 25,
+		rightPadding = 2,
+		topBottemPadding = 5,
+		chartInnerWidth = chartWidth - leftPadding - rightPadding,
+		chartInnerHeight = chartHeight - topBottemPadding * 2,
+		translate = "translate(" + leftPadding + "," + topBottemPadding + ")";
+
+	var yScale = d3.scale.linear()
+		.range([0, chartHeight])
+		.domain([0, .5]);
+
 
 window.onload = setMap();
 
@@ -54,6 +67,7 @@ function setMap(){
         	.attr("class", "lakesRivers")
         	.attr("d", path);
 
+        createDropdown(csvData);
  
 		
 	}
@@ -166,15 +180,6 @@ function choropleth(props, colorScale){
 };
 
 function setChart(csvData, colorScale){
-	
-	var chartWidth = window.innerWidth * 0.4,
-		chartHeight = 560,
-		leftPadding = 25,
-		rightPadding = 2,
-		topBottemPadding = 5,
-		chartInnerWidth = chartWidth - leftPadding - rightPadding,
-		chartInnerHeight = chartHeight - topBottemPadding * 2,
-		translate = "translate(" + leftPadding + "," + topBottemPadding + ")";
 
 	var chart = d3.select("body")
 		.append("svg")
@@ -188,10 +193,6 @@ function setChart(csvData, colorScale){
 		.attr("height", "chartInnerHeight")
 		.attr("transform", "translate");
 
-	var yScale = d3.scale.linear()
-		.range([0, chartHeight])
-		.domain([0, .5]);
-
 	var bars = chart.selectAll(".bars")
 		.data(csvData)
 		.enter()
@@ -203,18 +204,7 @@ function setChart(csvData, colorScale){
 			return "bars " + d.ID;
 		})
 		.attr("width", chartWidth/ csvData.length - 1)
-		.attr("x", function(d, i){
-			return i * (chartWidth / csvData.length);
-		})
-		.attr("height", function(d){
-			return yScale(parseFloat(d[expressed]));
-		})
-		.attr("y", function(d){
-			return chartHeight - yScale(parseFloat(d[expressed]));
-		})
-		.style("fill", function(d){
-			return choropleth(d, colorScale);
-		});
+		
 
 	var chartTitle = chart.append("text")
 		.attr("x", 20)
@@ -230,6 +220,8 @@ function setChart(csvData, colorScale){
 		.attr("class", "axis")
 		.attr("transform", translate)
 		.call(yAxis)
+
+	updateChart(bars, csvData.length, colorScale);
 
 	// var xValue = function(d){
 	// 	console.log()
@@ -254,6 +246,74 @@ function setChart(csvData, colorScale){
 	// 	return d.choropleth;
 	// 	}
  };
+
+ function createDropdown(csvData){
+ 	var dropdown = d3.select("body")
+ 		.append("select")
+ 		.attr("class", "dropdown")
+ 		.on("change", function(){
+ 			changeAttribute(this.value, csvData)
+ 		});
+
+ 	var titleOption = dropdown.append("option")
+ 		.attr("class", "titleOption")
+ 		.attr("disabled", "true")
+ 		.text("Select Attribute");
+
+ 	var attrOptions = dropdown.selectAll("attrOptions")
+ 		.data(attrArray)
+ 		.enter()
+ 		.append("option")
+ 		.attr("value", function(d){ return d })
+ 		.text(function(d){ return d });
+ };
+
+ function changeAttribute(attribute, csvData){
+ 	expressed = attribute;
+
+ 	var colorScale = makeColorScale(csvData);
+
+ 	var zones = d3.selectAll(".zones")
+ 		.style("fill", function(d){
+ 			return choropleth(d.properties, colorScale)
+ 		})
+
+ 	var bars = d3.selectAll(".bar")
+ 		.sort(function(a, b){
+ 			return b[expressed] - a[expressed];
+ 		})
+
+ 	updateChart(bars, csvData.length, colorScale)
+ 		
+ }
+
+function updateChart(bars, n, colorScale){
+	bars.attr("x", function(d, i){
+		return i * (chartInnerWidth / n) + leftPadding;
+	})
+	.attr("height", function(d, i){
+		return 560 - yScale(parseFloat(d[expressed]));
+	})
+	.attr("y", function(d, i){
+		return yScale(parseFloat(d[expressed])) + topBottemPadding;
+	})
+	.style("fill", function(d){
+		return choropleth(d, colorScale);
+	});
+
+ 	// 	.attr("x", function(d, i){
+		// 	return i * (chartWidth / csvData.length);
+		// })
+		// .attr("height", function(d){
+		// 	return yScale(parseFloat(d[expressed]));
+		// })
+		// .attr("y", function(d){
+		// 	return chartHeight - yScale(parseFloat(d[expressed]));
+		// })
+		// .style("fill", function(d){
+		// 	return choropleth(d, colorScale);
+		// });
+}
 
 
 
