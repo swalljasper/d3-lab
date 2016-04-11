@@ -14,7 +14,11 @@
 
 	var yScale = d3.scale.linear()
 		.range([0, chartHeight])
-		.domain([0, .5]);
+		.domain([0, 0.5]); //need to make dynamic
+
+	var xScale = d3.scale.linear()
+		.range([0, chartWidth])
+		.domain([0, 118])
 
 
 window.onload = setMap();
@@ -123,7 +127,17 @@ function setEnumerationUnits(censusTracts, map, path, colorScale){
 		.attr("d", path)
 		.style("fill", function(d){
 			return choropleth(d.properties, colorScale);
-		});
+		})
+		.on("mouseover", function(d){
+			highlight(d.properties);
+		})
+		.on("mouseout", function(d){
+			dehighlight(d.properties);
+		})
+		.on("mousemove", moveLabel);
+
+	var desc = zones.append("desc")
+		.text('{"stroke": "#000", "stroke-width": "0.5px"}');
 };
 
 function joinData(censusTracts, csvData){
@@ -198,12 +212,18 @@ function setChart(csvData, colorScale){
 		.enter()
 		.append("rect")
 		.sort(function(a, b){
-			return a[expressed]-b[expressed]
+			return b[expressed]-a[expressed]
 		})
 		.attr("class", function(d){
-			return "bars " + d.ID;
+			return "bar " + d.ID;
 		})
-		.attr("width", chartWidth/ csvData.length - 1)
+		.attr("width", chartInnerWidth/ csvData.length - 1)
+		.on("mouseover", highlight)
+		.on("mouseout", dehighlight)
+		.on("mousemove", moveLabel);
+
+	var desc = bars.append("desc")
+		.text('{"stroke": "#000", "stroke-width": "0.5px"}');
 		
 
 	var chartTitle = chart.append("text")
@@ -314,6 +334,83 @@ function updateChart(bars, n, colorScale){
 		// 	return choropleth(d, colorScale);
 		// });
 }
+
+function highlight(properties){
+	console.log("working")
+	var selected = d3.selectAll("." + properties.ID)
+		.style({
+			"stroke": "#000",
+			"stroke-width": "2"
+		});
+};
+
+function dehighlight(props){
+	var selected = d3.selectAll("." + props.ID)
+		.style({
+			"stroke": function(){
+				return getStyle(this, "stroke")
+			},
+			"stroke-width": function(){
+				return getStyle(this, "stroke-width")
+			}
+		});
+
+
+	function getStyle(element, styleName){
+		var styleText = d3.select(element)
+			.select("desc")
+			.text();
+
+		var styleObject = JSON.parse(styleText);
+
+		return styleObject[styleName];
+
+		d3.select(".infolabel")
+			.remove();
+
+	};
+
+
+};
+
+function setLabel(props){
+	var labelAttribute = "<h1>" + props[expressed] +
+		"</h1><b>" + expressed + "</b>";
+
+	var infolabel = d3.select("body")
+		.append("div")
+		.attr({
+			"class": "infolabel",
+			"id": props.GEOID + "_label"
+		})
+		.html(labelAttribute);
+
+	var regionName = infolabel.append("div")
+		.attr("class", "labelname")
+		.html(prop.name);
+};
+
+function moveLabel(){
+	var labelWidth = d3.select(".infolabel")
+		.node()
+		.getBoundingClientRect()
+		.width;
+
+	var x1 = d3.event.clientX + 10
+	var y1 = d3.event.clientY - 75
+	var x2 = d3.event.clientX - labelWidth - 10
+	var y2 = d3.event.clientY + 25;
+
+	var x = d3.event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1;
+
+	var y = d3.event.clientY < 75 ? y2 : y1;
+
+	d3.select(".infolabel")
+		.style({
+			"left": x + "px",
+			"top": y + "px"
+		});
+};
 
 
 
