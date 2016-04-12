@@ -1,11 +1,18 @@
 (function(){
 
-	var attrArray = ["frn_brn", "pvrty", "rent", "unemp", "unins"];
+	//need to:
+	//highlight
+	//change scale when attribute is changed
+
+
+
+
+	var attrArray = ["Forign","Poverty","Unemployed","Uninsured","Rent"];
 	var expressed = attrArray[0];
 
 	var chartWidth = window.innerWidth * 0.4,
 		chartHeight = 560,
-		leftPadding = 25,
+		leftPadding = 35,
 		rightPadding = 2,
 		topBottemPadding = 5,
 		chartInnerWidth = chartWidth - leftPadding - rightPadding,
@@ -52,8 +59,6 @@ function setMap(){
 
 	function callback(error, csvData, tracts, water){
 
-		//setGraticule(map, path);
-
 		var hydro = topojson.feature(water, water.objects.Water),
             censusTracts = topojson.feature(tracts, tracts.objects.censusTracts).features;
 
@@ -72,6 +77,8 @@ function setMap(){
         	.attr("d", path);
 
         createDropdown(csvData);
+
+        console.log(censusTracts)
  
 		
 	}
@@ -137,7 +144,7 @@ function setEnumerationUnits(censusTracts, map, path, colorScale){
 		.on("mousemove", moveLabel);
 
 	var desc = zones.append("desc")
-		.text('{"stroke": "#000", "stroke-width": "0.5px"}');
+		.text('{"stroke": "#CCC", "stroke-width": "0.5px"}');
 };
 
 function joinData(censusTracts, csvData){
@@ -227,8 +234,8 @@ function setChart(csvData, colorScale){
 		
 
 	var chartTitle = chart.append("text")
-		.attr("x", 20)
-		.attr("y", 40)
+		.attr("x", 60)
+		.attr("y", 20)
 		.attr("class", "chartTitle")
 		.text(expressed + " in each CensusTracts")
 
@@ -242,35 +249,14 @@ function setChart(csvData, colorScale){
 		.call(yAxis)
 
 	updateChart(bars, csvData.length, colorScale);
-
-	// var xValue = function(d){
-	// 	console.log()
-	// 	return d.properties.frn_brn;
-	// 	}
-	// var	xScale = d3.scale.linear().range([0, chartWidth])
-	// var	xMap = function(d) {
-	// 		return xScale(xValue(d));
-	// 	}
-	// var	xAxis = d3.svg.axis().scale(xScale).orient("bottem")
-
-	// var yValue = function(d){
-	// 		return d.properties.pvrty;
-	// 	}
-	// var	yScale = d3.scale.linear().range([chartHeight, 0])
-	// var	yMap = function(d){
-	// 		return yScale(yValue(d));
-	// 	}
-	// var	yAxis = d3.svg.axis().scale(yScale).orient("left");
-
-	// var cValue = function(d) {
-	// 	return d.choropleth;
-	// 	}
  };
 
  function createDropdown(csvData){
  	var dropdown = d3.select("body")
  		.append("select")
  		.attr("class", "dropdown")
+ 		.attr("x", 10)
+ 		.attr("y", 100)
  		.on("change", function(){
  			changeAttribute(this.value, csvData)
  		});
@@ -320,32 +306,23 @@ function updateChart(bars, n, colorScale){
 	.style("fill", function(d){
 		return choropleth(d, colorScale);
 	});
-
- 	// 	.attr("x", function(d, i){
-		// 	return i * (chartWidth / csvData.length);
-		// })
-		// .attr("height", function(d){
-		// 	return yScale(parseFloat(d[expressed]));
-		// })
-		// .attr("y", function(d){
-		// 	return chartHeight - yScale(parseFloat(d[expressed]));
-		// })
-		// .style("fill", function(d){
-		// 	return choropleth(d, colorScale);
-		// });
 }
 
-function highlight(properties){
-	console.log("working")
-	var selected = d3.selectAll("." + properties.ID)
+function highlight(props){
+
+	
+	var selected = d3.selectAll("." + props.GEOID)
 		.style({
-			"stroke": "#000",
-			"stroke-width": "2"
+			"stroke": "#196619",
+			"stroke-width": "3"
 		});
+
+	setLabel(props);
+
 };
 
 function dehighlight(props){
-	var selected = d3.selectAll("." + props.ID)
+	var selected = d3.selectAll("." + props.GEOID)
 		.style({
 			"stroke": function(){
 				return getStyle(this, "stroke")
@@ -387,10 +364,11 @@ function setLabel(props){
 
 	var regionName = infolabel.append("div")
 		.attr("class", "labelname")
-		.html(prop.name);
+		.html(props.name);
 };
 
 function moveLabel(){
+
 	var labelWidth = d3.select(".infolabel")
 		.node()
 		.getBoundingClientRect()
@@ -415,9 +393,4 @@ function moveLabel(){
 
 
 })();
-
-
-
-
-
 

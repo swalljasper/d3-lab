@@ -1,3 +1,16 @@
+#body {
+	background-color: #000;
+}
+#header {
+	height: 70px;
+	text-align: center;
+}
+
+h1 {
+	font-family: Rockwell;
+	font-size: 40px
+}
+
 .map {
     margin: 10px 0 0 20px;
 }
@@ -8,7 +21,7 @@
 }
 
 .chartTitle {
-	font-family: Futura;
+	font-family: Rockwell;
 	font-size: 20px;
 	font-weight: bold;
 }
@@ -33,7 +46,7 @@
 }
 
 .axis text {
-	font-family: Futura;
+	font-family: Rockwell;
 	font-size: 10px;
 	fill: #999;
 }
@@ -60,10 +73,10 @@
 
 .dropdown {
 	position: absolute;
-	top: 30px;
+	top: 100px;
 	left: 40px;
 	z-index: 10;
-	font-family: Futura;
+	font-family: Rockwell;
 	font-size: 10px;
 	font-weight: bold;
 	padding: 2px;
