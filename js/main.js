@@ -1,13 +1,6 @@
 (function(){
 
-	//need to:
-	//highlight
-	//change scale when attribute is changed
-
-
-
-
-	var attrArray = ["Forign","Poverty","Unemployed","Uninsured","Rent"];
+	var attrArray = ["Foreign","Poverty","Unemployed","Uninsured","Rent"];
 	var expressed = attrArray[0];
 
 	var chartWidth = window.innerWidth * 0.4,
@@ -129,7 +122,7 @@ function setEnumerationUnits(censusTracts, map, path, colorScale){
 		.enter()
 		.append("path")
 		.attr("class", function(d){
-			return "zones " + d.properties.GEOID;
+			return "zones ID" + d.properties.GEOID;
 		})
 		.attr("d", path)
 		.style("fill", function(d){
@@ -222,15 +215,15 @@ function setChart(csvData, colorScale){
 			return b[expressed]-a[expressed]
 		})
 		.attr("class", function(d){
-			return "bar " + d.ID;
+			return "bar ID" + d.ID;
 		})
 		.attr("width", chartInnerWidth/ csvData.length - 1)
-		.on("mouseover", highlight)
-		.on("mouseout", dehighlight)
+		.on("mouseover", highlightBars)
+		.on("mouseout", dehighlightBars)
 		.on("mousemove", moveLabel);
 
 	var desc = bars.append("desc")
-		.text('{"stroke": "#000", "stroke-width": "0.5px"}');
+		.text('{"stroke": "#fff", "stroke-width": "0.5px"}');
 		
 
 	var chartTitle = chart.append("text")
@@ -280,6 +273,8 @@ function setChart(csvData, colorScale){
  	var colorScale = makeColorScale(csvData);
 
  	var zones = d3.selectAll(".zones")
+ 		.transition()
+ 		.duration(1000)
  		.style("fill", function(d){
  			return choropleth(d.properties, colorScale)
  		})
@@ -288,6 +283,11 @@ function setChart(csvData, colorScale){
  		.sort(function(a, b){
  			return b[expressed] - a[expressed];
  		})
+ 		.transition()
+ 		.delay(function(d,i){
+ 			return i * 20
+ 		})
+ 		.duration(1000);
 
  	updateChart(bars, csvData.length, colorScale)
  		
@@ -309,11 +309,10 @@ function updateChart(bars, n, colorScale){
 }
 
 function highlight(props){
-
 	
-	var selected = d3.selectAll("." + props.GEOID)
+	var selected = d3.selectAll(".ID" + props.GEOID)
 		.style({
-			"stroke": "#196619",
+			"stroke": "#000",
 			"stroke-width": "3"
 		});
 
@@ -322,7 +321,48 @@ function highlight(props){
 };
 
 function dehighlight(props){
-	var selected = d3.selectAll("." + props.GEOID)
+	var selected = d3.selectAll(".ID" + props.GEOID)
+		.style({
+			"stroke": function(){
+				return getStyle(this, "stroke")
+			},
+			"stroke-width": function(){
+				return getStyle(this, "stroke-width")
+			}
+		});
+
+
+	function getStyle(element, styleName){
+		var styleText = d3.select(element)
+			.select("desc")
+			.text();
+
+		var styleObject = JSON.parse(styleText);
+
+		return styleObject[styleName];
+
+		d3.select(".infolabel")
+			.remove();
+
+	};
+
+
+};
+
+function highlightBars(props){
+	
+	var selected = d3.selectAll(".ID" + props.ID)
+		.style({
+			"stroke": "#000",
+			"stroke-width": "3"
+		});
+
+	setLabel(props);
+
+};
+
+function dehighlightBars(props){
+	var selected = d3.selectAll(".ID" + props.ID)
 		.style({
 			"stroke": function(){
 				return getStyle(this, "stroke")
@@ -358,7 +398,7 @@ function setLabel(props){
 		.append("div")
 		.attr({
 			"class": "infolabel",
-			"id": props.GEOID + "_label"
+			"id": props.ID + "_label"
 		})
 		.html(labelAttribute);
 
