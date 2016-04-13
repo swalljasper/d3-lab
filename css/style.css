@@ -2,13 +2,18 @@
 	background-color: #000;
 }
 #header {
-	height: 70px;
+	height: 110px;
 	text-align: center;
 }
 
 h1 {
 	font-family: Rockwell;
 	font-size: 40px
+}
+
+h2 {
+	font-family: Rockwell;
+	font-size: 25px
 }
 
 .map {
@@ -22,7 +27,7 @@ h1 {
 
 .chartTitle {
 	font-family: Rockwell;
-	font-size: 20px;
+	font-size: 17px;
 	font-weight: bold;
 }
 
@@ -49,12 +54,6 @@ h1 {
 	font-family: Rockwell;
 	font-size: 10px;
 	fill: #999;
-}
-
-.gratlines {
-	fill: none;
-	stroke: #999;
-	stroke-width: 1px;
 }
 
 .gratBackground {

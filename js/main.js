@@ -14,7 +14,7 @@
 
 	var yScale = d3.scale.linear()
 		.range([0, chartHeight])
-		.domain([0, 0.5]); //need to make dynamic
+		.domain([0, 1]); //need to make dynamic
 
 	var xScale = d3.scale.linear()
 		.range([0, chartWidth])
@@ -70,9 +70,6 @@ function setMap(){
         	.attr("d", path);
 
         createDropdown(csvData);
-
-        console.log(censusTracts)
- 
 		
 	}
 
@@ -134,7 +131,7 @@ function setEnumerationUnits(censusTracts, map, path, colorScale){
 		.on("mouseout", function(d){
 			dehighlight(d.properties);
 		})
-		.on("mousemove", moveLabel);
+		//.on("mousemove", moveLabel);
 
 	var desc = zones.append("desc")
 		.text('{"stroke": "#CCC", "stroke-width": "0.5px"}');
@@ -162,25 +159,6 @@ function joinData(censusTracts, csvData){
 
     return censusTracts; 
 
-};
-
-		
-function setGraticule(map, path){
-
-		var graticule = d3.geo.graticule()
-			.step([0.01, 0.01]);
-
-		var gratBackground = map.append("path")
-			.datum(graticule.outline())
-			.attr("class", "gratBackground")
-			.attr("d", path)
-
-		var gratLines = map.selectAll(".gratLines")
-			.data(graticule.lines())
-			.enter()
-			.append("path")
-			.attr("class", "gratLines")
-			.attr("d", path);
 };
 
 function choropleth(props, colorScale){
@@ -220,17 +198,16 @@ function setChart(csvData, colorScale){
 		.attr("width", chartInnerWidth/ csvData.length - 1)
 		.on("mouseover", highlightBars)
 		.on("mouseout", dehighlightBars)
-		.on("mousemove", moveLabel);
+		//.on("mousemove", moveLabel);
 
 	var desc = bars.append("desc")
 		.text('{"stroke": "#fff", "stroke-width": "0.5px"}');
-		
-
+	
 	var chartTitle = chart.append("text")
 		.attr("x", 60)
 		.attr("y", 20)
 		.attr("class", "chartTitle")
-		.text(expressed + " in each CensusTracts")
+		.text(expressed + " in each Census Tract (by percent)")
 
 	var yAxis = d3.svg.axis()
 		.scale(yScale)
@@ -306,6 +283,9 @@ function updateChart(bars, n, colorScale){
 	.style("fill", function(d){
 		return choropleth(d, colorScale);
 	});
+
+	var chartTitle = d3.select(".chartTitle")
+		.text(expressed + " in each Census Tract (by percent)")
 }
 
 function highlight(props){
@@ -391,6 +371,7 @@ function dehighlightBars(props){
 };
 
 function setLabel(props){
+
 	var labelAttribute = "<h1>" + props[expressed] +
 		"</h1><b>" + expressed + "</b>";
 
