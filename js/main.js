@@ -14,7 +14,7 @@
 
 	var yScale = d3.scale.linear()
 		.range([0, chartHeight])
-		.domain([0, 1]); //need to make dynamic
+		.domain([0, 1]);
 
 	var xScale = d3.scale.linear()
 		.range([0, chartWidth])
@@ -110,8 +110,6 @@ function makeColorScale(data){
 
 };
 
-
-
 function setEnumerationUnits(censusTracts, map, path, colorScale){
 
 	var zones = map.selectAll(".zones")
@@ -131,7 +129,6 @@ function setEnumerationUnits(censusTracts, map, path, colorScale){
 		.on("mouseout", function(d){
 			dehighlight(d.properties);
 		})
-		//.on("mousemove", moveLabel);
 
 	var desc = zones.append("desc")
 		.text('{"stroke": "#CCC", "stroke-width": "0.5px"}');
@@ -198,7 +195,6 @@ function setChart(csvData, colorScale){
 		.attr("width", chartInnerWidth/ csvData.length - 1)
 		.on("mouseover", highlightBars)
 		.on("mouseout", dehighlightBars)
-		//.on("mousemove", moveLabel);
 
 	var desc = bars.append("desc")
 		.text('{"stroke": "#fff", "stroke-width": "0.5px"}');
@@ -372,8 +368,8 @@ function dehighlightBars(props){
 
 function setLabel(props){
 
-	var labelAttribute = "<h1>" + props[expressed] +
-		"</h1><b>" + expressed + "</b>";
+	var labelAttribute = "<h1>" + (props[expressed] * 100) +
+		"</h1>Percent <b>" + expressed + "</b>";
 
 	var infolabel = d3.select("body")
 		.append("div")
@@ -387,31 +383,6 @@ function setLabel(props){
 		.attr("class", "labelname")
 		.html(props.name);
 };
-
-function moveLabel(){
-
-	var labelWidth = d3.select(".infolabel")
-		.node()
-		.getBoundingClientRect()
-		.width;
-
-	var x1 = d3.event.clientX + 10
-	var y1 = d3.event.clientY - 75
-	var x2 = d3.event.clientX - labelWidth - 10
-	var y2 = d3.event.clientY + 25;
-
-	var x = d3.event.clientX > window.innerWidth - labelWidth - 20 ? x2 : x1;
-
-	var y = d3.event.clientY < 75 ? y2 : y1;
-
-	d3.select(".infolabel")
-		.style({
-			"left": x + "px",
-			"top": y + "px"
-		});
-};
-
-
 
 })();
 
