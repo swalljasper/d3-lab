@@ -23,6 +23,8 @@
 
 window.onload = setMap();
 
+
+//loads map
 function setMap(){
 	var width = window.innerWidth * 0.5,
 		height = 560;
@@ -50,6 +52,7 @@ function setMap(){
 		.defer(d3.json, "../data/Water.json")
 		.await(callback);
 
+	//adds data
 	function callback(error, csvData, tracts, water){
 
 		var hydro = topojson.feature(water, water.objects.Water),
@@ -75,6 +78,7 @@ function setMap(){
 
 }
 
+//creates choropleth color scale
 function makeColorScale(data){
         	var colorClasses = [
         		"#eff3ff",
@@ -110,6 +114,7 @@ function makeColorScale(data){
 
 };
 
+//factors data into zones
 function setEnumerationUnits(censusTracts, map, path, colorScale){
 
 	var zones = map.selectAll(".zones")
@@ -134,6 +139,7 @@ function setEnumerationUnits(censusTracts, map, path, colorScale){
 		.text('{"stroke": "#CCC", "stroke-width": "0.5px"}');
 };
 
+//joins geojson and csv
 function joinData(censusTracts, csvData){
 
 	for (var i=0; i<csvData.length; i++){
@@ -158,6 +164,7 @@ function joinData(censusTracts, csvData){
 
 };
 
+//iterates color scale
 function choropleth(props, colorScale){
 	var val = parseFloat(props[expressed]);
 
@@ -168,6 +175,7 @@ function choropleth(props, colorScale){
 	};
 };
 
+//creates chart
 function setChart(csvData, colorScale){
 
 	var chart = d3.select("body")
@@ -217,6 +225,7 @@ function setChart(csvData, colorScale){
 	updateChart(bars, csvData.length, colorScale);
  };
 
+ //creates dropdown menu
  function createDropdown(csvData){
  	var dropdown = d3.select("body")
  		.append("select")
@@ -240,6 +249,7 @@ function setChart(csvData, colorScale){
  		.text(function(d){ return d });
  };
 
+ //allows selection of other variables
  function changeAttribute(attribute, csvData){
  	expressed = attribute;
 
@@ -266,6 +276,7 @@ function setChart(csvData, colorScale){
  		
  }
 
+//updates chart once new variable is selected
 function updateChart(bars, n, colorScale){
 	bars.attr("x", function(d, i){
 		return i * (chartInnerWidth / n) + leftPadding;
@@ -284,6 +295,7 @@ function updateChart(bars, n, colorScale){
 		.text(expressed + " in each Census Tract (by percent)")
 }
 
+//creates visual affordance
 function highlight(props){
 	
 	var selected = d3.selectAll(".ID" + props.GEOID)
@@ -366,6 +378,7 @@ function dehighlightBars(props){
 
 };
 
+//creates popup label
 function setLabel(props){
 
 	var labelAttribute = "<h1>" + (props[expressed] * 100) +
